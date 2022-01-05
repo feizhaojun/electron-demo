@@ -1,7 +1,7 @@
 /*
  * @Author: Mukti
  * @Date: 2021-12-31 15:24:31
- * @LastEditTime: 2022-01-05 23:57:15
+ * @LastEditTime: 2022-01-05 23:58:38
  * @LastEditors: Mukti
  */
 const { app, BrowserWindow } = require('electron');
@@ -33,7 +33,7 @@ app.whenReady().then(() => {
   });
 });
 
-app.dock.setIcon('./icon.png');
+app.dock.setIcon(path.join(__dirname, 'icon.png'));
 
 // httpServer.createServer().listen(8080);
 
@@ -130,19 +130,19 @@ function response(data, ws) {
             status: 'success',
             msg: '',
             detail: ''
-          }
+          };
         })
       }));
     }, notifyTime);
     break;
   case 'getTaskStatus':
-    res.printStatus = data.taskID.map(el => {
+    res.printStatus = data.taskID.map(() => {
       return {
         documentID: '',
         status: 'success',
         msg: '',
         printer: ''
-      }
+      };
     });
     break;
   case 'getGlobalConfig':
