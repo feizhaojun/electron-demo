@@ -1,7 +1,7 @@
 /*
  * @Author: Mukti
  * @Date: 2021-12-31 15:24:31
- * @LastEditTime: 2022-01-05 23:58:38
+ * @LastEditTime: 2022-01-06 00:15:27
  * @LastEditors: Mukti
  */
 const { app, BrowserWindow } = require('electron');
@@ -16,6 +16,7 @@ function createWindow () {
     width: 800,
     height: 600,
     webPreferences: {
+      // eslint-disable-next-line no-undef
       preload: path.join(__dirname, 'preload.js')
     }
   });
@@ -33,6 +34,7 @@ app.whenReady().then(() => {
   });
 });
 
+// eslint-disable-next-line no-undef
 app.dock.setIcon(path.join(__dirname, 'icon.png'));
 
 // httpServer.createServer().listen(8080);
