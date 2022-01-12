@@ -1,7 +1,7 @@
 /*
  * @Author: Mukti
  * @Date: 2021-12-31 15:24:31
- * @LastEditTime: 2022-01-06 00:15:27
+ * @LastEditTime: 2022-01-12 12:50:18
  * @LastEditors: Mukti
  */
 const { app, BrowserWindow } = require('electron');
@@ -109,7 +109,7 @@ function response(data, ws) {
     break;
   case 'print':
     res.status = 'success';
-    res.taskID = data.taskID;
+    res.taskID = data.task.taskID;
     if (data.preview) {
       if (data.previewType === 'image') {
         res.previewImage = [];
@@ -124,7 +124,7 @@ function response(data, ws) {
       ws.send(JSON.stringify({
         cmd: 'notifyPrintResult',
         printer: data.printer,
-        taskID: data.taskID,
+        taskID: data.task.taskID,
         taskStatus: 'printed',
         printStatus: data.task.documents.map(el => {
           return {
