@@ -1,62 +1,117 @@
 /*
  * @Author: Mukti
- * @Date: 2021-12-31 15:24:31
- * @LastEditTime: 2021-12-31 23:36:11
+ * @Date: 2023-08-07 19:24:38
+ * @LastEditTime: 2024-01-02 15:41:35
  * @LastEditors: Mukti
  */
-const { app, BrowserWindow } = require('electron');
+const { app, BrowserWindow, dialog, Menu, ipcMain } = require('electron');
 const process = require('process');
 const path = require('path');
-// const httpServer = require('http-server');
-const WebSocketServer = require('ws').Server;
-const printer = require('printer');
 
-function createWindow () {
+const createWindow = () => {
   const win = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
+      // eslint-disable-next-line no-undef
       preload: path.join(__dirname, 'preload.js')
     }
   });
 
+  const menu = Menu.buildFromTemplate([
+    {
+      label: app.name,
+      submenu: [
+        {
+          click: () => win.webContents.send('update-counter', 1),
+          label: 'Increment'
+        },
+        {
+          click: () => win.webContents.send('update-counter', -1),
+          label: 'Decrement'
+        }
+      ]
+    }
+  ]);
+  Menu.setApplicationMenu(menu);
+
   win.loadFile('index.html');
-}
+  win.webContents.openDevTools();
+};
+
+const handleSetTitle = (event, title) => {
+  const webContents = event.sender;
+  const win = BrowserWindow.fromWebContents(webContents);
+  win.setTitle(title);
+};
+const handleFileOpen = async () => {
+  const { canceled, filePaths } = await dialog.showOpenDialog();
+  if (!canceled) {
+    return filePaths[0];
+  }
+};
+const showOpenDialog = async () => {
+  const res = await dialog.showOpenDialog({
+    title: 'Title Test',
+    buttonLabel: '哈哈哈',
+    properties: [ 'openDirectory', 'createDirectory' ]
+  });
+  console.log(res);
+};
+const showSaveDialog = async () => {
+  const res = await dialog.showSaveDialog({
+    title: 'Title Test',
+    buttonLabel: '哈哈',
+    message: 'dfs mesg',
+    nameFieldLabel: 'nameFieldLabel',
+    showsTagField: true,
+    properties: [ 'openDirectory', 'createDirectory' ]
+  });
+  console.log(res);
+};
+const showMessageBox = async () => {
+  const res = await dialog.showMessageBox();
+  console.log(res);
+};
+const showOpenDialogSync = async () => {
+  const res = dialog.showOpenDialogSync({
+    title: 'Title Test',
+    buttonLabel: '哈哈哈',
+    properties: [ 'openDirectory', 'createDirectory' ]
+  });
+  console.log(res);
+};
+const showSaveDialogSync = async () => {
+  const res = await dialog.showSaveDialogSync();
+  console.log(res);
+};
 
 app.whenReady().then(() => {
-  createWindow();
-  app.on('window-all-closed', function () {
-    if (process.platform !== 'darwin') app.quit();
+  // 监听 ipc 消息
+  ipcMain.on('set-title', handleSetTitle);
+  // 监听回复
+  ipcMain.on('counter-value', (_event, value) => {
+    console.log(value);
   });
-  app.on('activate', function () {
+  // 双向 ipc，从渲染器进程代码调用主进程模块并等待结果 
+  ipcMain.handle('dialog:openFile', handleFileOpen);
+  ipcMain.handle('ping', () => 'ping msg');
+  ipcMain.handle('dialog:showOpenDialog', showOpenDialog);
+  ipcMain.handle('dialog:showSaveDialog', showSaveDialog);
+  ipcMain.handle('dialog:showMessageBox', showMessageBox);
+  ipcMain.handle('dialog:showOpenDialogSync', showOpenDialogSync);
+  ipcMain.handle('dialog:showSaveDialogSync', showSaveDialogSync);
+  // 
+  // 
+  createWindow();
+  app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 });
 
-app.dock.setIcon('./icon.png');
-
-// httpServer.createServer().listen(8080);
-
-const ws = new WebSocketServer({port: 13528});
-const wss = new WebSocketServer({port: 13529});
-ws.on('connection', (ws) => {
-  console.log('Client connected.');
-  // ws.on('open', function open() {
-  //   ws.send('something');
-  // });
-  ws.on('message', (msg) => {
-    let data = {};
-    try {
-      data = JSON.parse(msg.toString());
-    } catch {
-      ws.send('Error');
-    }
-    console.log(data);
-    if (data.cmd === 'getPrinters') {
-      let printerList = printer.getPrinters();
-      ws.send(JSON.stringify(printerList));
-    } else {
-      ws.send('Wrong cmd.');
-    }
-  });
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') app.quit();
 });
+
+
+app.setAsDefaultProtocolClient('mf', process.execPath, 'args');

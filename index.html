@@ -1,7 +1,7 @@
 <!--
  * @Author: Mukti
  * @Date: 2021-12-31 16:41:12
- * @LastEditTime: 2021-12-31 18:27:01
+ * @LastEditTime: 2023-09-20 20:26:18
  * @LastEditors: Mukti
 -->
 <!DOCTYPE html>
@@ -15,9 +15,18 @@
   <body>
     <h1>打印组件</h1>
     <p>本程序模拟在MacOS启动一个打印组件。</p>
-    <!-- Node.js <span id="node-version"></span> 
+    Node.js <span id="node-version"></span> 
     Chromium <span id="chrome-version"></span> 
-    Electron <span id="electron-version"></span> -->
+    Electron <span id="electron-version"></span>
+    <button id="set-title">Set Title</button>
+    <button id="open-file">Open File</button>
+    <p id="msg"></p>
+    <button id="showOpenDialog">showOpenDialog</button>
+    <button id="showSaveDialog">showSaveDialog</button>
+    <button id="showMessageBox">showMessageBox</button>
+    <button id="showOpenDialogSync">showOpenDialogSync</button>
+    <button id="showSaveDialogSync">showSaveDialogSync</button>
+
     <script src="./renderer.js"></script>
   </body>
 </html>
